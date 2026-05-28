@@ -1,0 +1,28 @@
+name: Daily Market Digest
+
+on:
+  schedule:
+    # 10:00 UTC = 6:00am ET in summer (EDT) / 5:00am ET in winter (EST).
+    # GitHub cron is fixed UTC and does NOT adjust for daylight saving.
+    # Adjust the hour if you want a different ET send time.
+    - cron: "0 10 * * 1-5"   # weekdays only
+  workflow_dispatch: {}        # adds a "Run workflow" button for manual/testing runs
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python scripts/daily_digest.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL:    ${{ vars.ANTHROPIC_MODEL }}
+          EMAIL_TO:           ${{ secrets.EMAIL_TO }}
+          EMAIL_FROM:         ${{ secrets.EMAIL_FROM }}
+          RESEND_API_KEY:     ${{ secrets.RESEND_API_KEY }}
+          GMAIL_ADDRESS:      ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
