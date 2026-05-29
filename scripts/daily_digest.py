@@ -26,23 +26,30 @@ MODEL = os.environ.get("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
 TODAY = datetime.datetime.now().strftime("%A, %B %d, %Y")
 
 SYSTEM = (
-    "You are a markets research assistant producing a concise pre-market email "
-    "digest for a retail investor in the US (Eastern time). Be factual, specific, "
-    "and current. Use the web_search tool to gather TODAY's actual information "
-    "before writing; never rely on memory for time-sensitive figures. Do NOT give "
-    "personalized buy/sell recommendations or position sizing — report the news and "
-    "explain why it may matter to markets. Keep a neutral, un-hyped tone."
+    "You are an equity and options markets research assistant producing a concise "
+    "pre-market email digest for an active US retail trader (Eastern time) who "
+    "focuses on individual stocks and options. Be factual, specific, and current. "
+    "Use the web_search tool to gather TODAY's actual information before writing; "
+    "never rely on memory for time-sensitive figures, prices, or moves. Prioritize "
+    "concrete single-name catalysts over broad macro commentary. Do NOT give buy/sell "
+    "recommendations, your own price targets, or position-sizing advice — report what "
+    "happened and explain why it may matter to a stock or its options. Keep a neutral, "
+    "un-hyped tone and cite sources."
 )
 
-PROMPT = f"""Today is {TODAY}. Research and write my pre-market digest, with real figures and sources:
+PROMPT = f"""Today is {TODAY}. Research and write my pre-market trading digest, leading with single-stock and options catalysts. Use real, current figures and name specific tickers throughout.
 
-1. Market snapshot — US equity futures (S&P 500, Nasdaq, Dow) and overnight direction; major overseas markets; 10Y Treasury yield, crude oil, gold, and Bitcoin if notable.
-2. Overnight & morning headlines — the few stories most likely to move US markets today.
-3. Trump / policy watch — anything President Trump said or posted (Truth Social, statements, executive actions) or any administration policy news (tariffs, trade, the Fed, specific companies or sectors) in the last ~24h that markets may react to. If nothing notable, say so plainly.
-4. Today's calendar — key economic data releases and notable earnings due today, with times in ET.
-5. Stocks in focus — a handful of named tickers moving pre-market, each with a one-line reason.
+1. Stocks in focus (lead with this) — the names moving most in pre-market and WHY: earnings beats/misses and guidance, analyst upgrades/downgrades and price-target changes, M&A, product or contract news, FDA/legal/regulatory events. For each: ticker, the pre-market move if known, and a one-line catalyst.
 
-Format the body as clean, simple HTML using only <h3>, <p>, <ul>/<li>, and <strong> — no <html>/<head>/<body> wrapper, no inline CSS, no images. Keep it scannable and under ~700 words. Make the very first line a one-sentence plain summary wrapped in <p><strong>...</strong></p>. End with a short <em>italic</em> line noting this is automated news, not financial advice."""
+2. Options watch — names with notable options activity or setups today: unusual options volume or flow, elevated implied volatility, expected post-earnings moves, and any major events that could drive premium. Name tickers; explain the setup, not a trade to make.
+
+3. Trump / policy watch — anything President Trump said or posted (Truth Social, statements, executive actions) or administration policy news (tariffs, trade, the Fed, named companies or sectors) in the last ~24h, mapped to the specific tickers or sectors that may react. If nothing notable, say so plainly.
+
+4. Earnings & economic calendar — notable companies reporting today (before/after the bell) and key data releases, with times in ET.
+
+5. Market snapshot (brief) — S&P 500, Nasdaq, Dow futures and overnight direction; 10Y Treasury yield, oil, gold, Bitcoin if notable. Keep this to a few lines.
+
+Format the body as clean, simple HTML using only <h3>, <p>, <ul>/<li>, and <strong> — no <html>/<head>/<body> wrapper, no inline CSS, no images. Keep it scannable, under ~800 words. Make the very first line a one-sentence plain summary wrapped in <p><strong>...</strong></p>. End with a short <em>italic</em> line noting this is automated news, not financial advice."""
 
 
 def _require_env(*names: str) -> None:
