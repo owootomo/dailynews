@@ -12,7 +12,11 @@ Optional env: ANTHROPIC_MODEL, EMAIL_FROM.
 import os
 import sys
 import datetime
+from pathlib import Path
+
 import requests
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from emailer import send_email, wrap_html
 
 API_URL = "https://api.anthropic.com/v1/messages"
@@ -40,7 +44,16 @@ PROMPT = f"""Today is {TODAY}. Research and write my pre-market digest, with rea
 Format the body as clean, simple HTML using only <h3>, <p>, <ul>/<li>, and <strong> — no <html>/<head>/<body> wrapper, no inline CSS, no images. Keep it scannable and under ~700 words. Make the very first line a one-sentence plain summary wrapped in <p><strong>...</strong></p>. End with a short <em>italic</em> line noting this is automated news, not financial advice."""
 
 
+def _require_env(*names: str) -> None:
+    missing = [n for n in names if not os.environ.get(n)]
+    if missing:
+        msg = f"Missing required env var(s): {', '.join(missing)}"
+        print(f"::error title=Config::{msg}", file=sys.stderr)
+        raise RuntimeError(msg)
+
+
 def build_digest() -> str:
+    _require_env("ANTHROPIC_API_KEY")
     headers = {
         "x-api-key": os.environ["ANTHROPIC_API_KEY"],
         "anthropic-version": "2023-06-01",
@@ -65,7 +78,11 @@ def build_digest() -> str:
         }],
     }
     resp = requests.post(API_URL, headers=headers, json=payload, timeout=300)
-    resp.raise_for_status()
+    if not resp.ok:
+        detail = resp.text[:500]
+        msg = f"Anthropic API error {resp.status_code}: {detail}"
+        print(f"::error title=Anthropic API::{msg}", file=sys.stderr)
+        resp.raise_for_status()
     data = resp.json()
     # Keep only final text blocks; skip server_tool_use / web_search_tool_result.
     return "".join(
@@ -74,18 +91,33 @@ def build_digest() -> str:
 
 
 def main():
+    _require_env("EMAIL_TO")
+    if not os.environ.get("RESEND_API_KEY") and not os.environ.get("GMAIL_APP_PASSWORD"):
+        msg = "No email method configured. Set RESEND_API_KEY or GMAIL_APP_PASSWORD."
+        print(f"::error title=Config::{msg}", file=sys.stderr)
+        raise RuntimeError(msg)
+
     html = build_digest()
     if not html:
-        print("ERROR: model returned no text.", file=sys.stderr)
+        msg = "Model returned no text."
+        print(f"::error title=Anthropic API::{msg}", file=sys.stderr)
         sys.exit(1)
     subject = f"\U0001F4C8 Pre-Market Digest \u2014 {datetime.datetime.now():%b %d}"
-    send_email(
-        subject,
-        wrap_html(html, "Pre-Market Digest"),
-        text_body="Your pre-market digest is ready. Open in an HTML email client.",
-    )
+    try:
+        send_email(
+            subject,
+            wrap_html(html, "Pre-Market Digest"),
+            text_body="Your pre-market digest is ready. Open in an HTML email client.",
+        )
+    except Exception as exc:
+        print(f"::error title=Email::{exc}", file=sys.stderr)
+        raise
     print("Digest sent.")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        print(f"Fatal: {exc}", file=sys.stderr)
+        sys.exit(1)

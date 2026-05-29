@@ -17,7 +17,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - run: python scripts/daily_digest.py
+      - run: python daily_digest.py
+        working-directory: scripts
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL:    ${{ vars.ANTHROPIC_MODEL }}
