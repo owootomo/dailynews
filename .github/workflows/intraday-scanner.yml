@@ -1,0 +1,29 @@
+name: Intraday Catalyst Scanner
+
+on:
+  schedule:
+    # Every 20 min from 8:00–21:00 UTC = roughly 4am–5pm ET (EDT).
+    # Covers pre-market, regular session, and early after-hours.
+    # Adjust the hour range to narrow or widen your coverage window.
+    - cron: "*/20 8-21 * * 1-5"
+  workflow_dispatch: {}   # Run manually anytime from the Actions tab
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python scripts/intraday_scanner.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL:    ${{ vars.ANTHROPIC_MODEL }}
+          WATCHLIST:          ${{ vars.WATCHLIST }}
+          EMAIL_TO:           ${{ secrets.EMAIL_TO }}
+          EMAIL_FROM:         ${{ secrets.EMAIL_FROM }}
+          RESEND_API_KEY:     ${{ secrets.RESEND_API_KEY }}
+          GMAIL_ADDRESS:      ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
