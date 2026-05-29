@@ -27,7 +27,7 @@ API_URL = "https://api.anthropic.com/v1/messages"
 MODEL = os.environ.get("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
 APIFY_TOKEN = os.environ["APIFY_TOKEN"]
 # Default actor scrapes Truth Social. Verify input/output on its Apify page.
-ACTOR_ID = os.environ.get("APIFY_ACTOR_ID", "muhammetakkurtt~truth-social-scraper")
+ACTOR_ID = os.environ.get("APIFY_ACTOR_ID") or "muhammetakkurtt~truth-social-scraper"
 LOOKBACK_MIN = int(os.environ.get("LOOKBACK_MINUTES") or "20")
 
 TEXT_FIELDS = ["text", "content", "post", "body", "caption", "title"]
@@ -39,7 +39,7 @@ def fetch_posts():
     """Run the Apify actor synchronously and return its dataset items (a list)."""
     default_input = {"profiles": ["realDonaldTrump"], "maxItems": 5}
     actor_input = json.loads(
-        os.environ.get("APIFY_INPUT_JSON", json.dumps(default_input))
+        os.environ.get("APIFY_INPUT_JSON") or json.dumps(default_input)
     )
     url = (f"https://api.apify.com/v2/acts/{ACTOR_ID}"
            f"/run-sync-get-dataset-items?token={APIFY_TOKEN}")
