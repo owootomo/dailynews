@@ -20,7 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from emailer import send_email, wrap_html
 
 API_URL = "https://api.anthropic.com/v1/messages"
-MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+# Dated model IDs are most reliable on new API keys; override via ANTHROPIC_MODEL.
+MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-5-20250929")
 
 TODAY = datetime.datetime.now().strftime("%A, %B %d, %Y")
 
@@ -53,7 +54,6 @@ def _require_env(*names: str) -> None:
 
 
 def build_digest() -> str:
-    _require_env("ANTHROPIC_API_KEY")
     headers = {
         "x-api-key": os.environ["ANTHROPIC_API_KEY"],
         "anthropic-version": "2023-06-01",
@@ -68,23 +68,13 @@ def build_digest() -> str:
             "type": "web_search_20250305",
             "name": "web_search",
             "max_uses": 8,
-            "user_location": {
-                "type": "approximate",
-                "city": "Atlanta",
-                "region": "Georgia",
-                "country": "US",
-                "timezone": "America/New_York",
-            },
         }],
     }
     resp = requests.post(API_URL, headers=headers, json=payload, timeout=300)
-    if not resp.ok:
-        detail = resp.text[:500]
-        msg = f"Anthropic API error {resp.status_code}: {detail}"
-        print(f"::error title=Anthropic API::{msg}", file=sys.stderr)
-        resp.raise_for_status()
+    if resp.status_code != 200:
+        print("API said:", resp.status_code, resp.text)
+    resp.raise_for_status()
     data = resp.json()
-    # Keep only final text blocks; skip server_tool_use / web_search_tool_result.
     return "".join(
         b.get("text", "") for b in data.get("content", []) if b.get("type") == "text"
     ).strip()
