@@ -28,7 +28,7 @@ MODEL = os.environ.get("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
 APIFY_TOKEN = os.environ["APIFY_TOKEN"]
 # Default actor scrapes Truth Social. Verify input/output on its Apify page.
 ACTOR_ID = os.environ.get("APIFY_ACTOR_ID", "muhammetakkurtt~truth-social-scraper")
-LOOKBACK_MIN = int(os.environ.get("LOOKBACK_MINUTES", "20"))
+LOOKBACK_MIN = int(os.environ.get("LOOKBACK_MINUTES") or "20")
 
 TEXT_FIELDS = ["text", "content", "post", "body", "caption", "title"]
 TIME_FIELDS = ["created_at", "createdAt", "timestamp", "published",
