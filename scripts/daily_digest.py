@@ -21,7 +21,7 @@ from emailer import send_email, wrap_html
 
 API_URL = "https://api.anthropic.com/v1/messages"
 # Dated model IDs are most reliable on new API keys; override via ANTHROPIC_MODEL.
-MODEL = (os.environ.get("ANTHROPIC_MODEL") or "").strip() or "claude-sonnet-4-5-20250929"
+MODEL = os.environ.get("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
 
 TODAY = datetime.datetime.now().strftime("%A, %B %d, %Y")
 

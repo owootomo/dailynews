@@ -24,7 +24,7 @@ import requests
 from emailer import send_email, wrap_html
 
 API_URL = "https://api.anthropic.com/v1/messages"
-MODEL = (os.environ.get("ANTHROPIC_MODEL") or "").strip() or "claude-sonnet-4-5-20250929"
+MODEL = os.environ.get("ANTHROPIC_MODEL") or "claude-sonnet-4-6"
 APIFY_TOKEN = os.environ["APIFY_TOKEN"]
 # Default actor scrapes Truth Social. Verify input/output on its Apify page.
 ACTOR_ID = os.environ.get("APIFY_ACTOR_ID", "muhammetakkurtt~truth-social-scraper")
