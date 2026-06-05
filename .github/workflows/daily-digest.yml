@@ -1,12 +1,10 @@
 name: Daily Market Digest
 
 on:
-  schedule:
-    # 10:00 UTC = 6:00am ET in summer (EDT) / 5:00am ET in winter (EST).
-    # GitHub cron is fixed UTC and does NOT adjust for daylight saving.
-    # Adjust the hour if you want a different ET send time.
-    - cron: "0 10 * * 1-5"   # weekdays only
-  workflow_dispatch: {}        # adds a "Run workflow" button for manual/testing runs
+  # Schedule disabled — run manually from Actions tab when ready.
+  # schedule:
+  #   - cron: "0 10 * * 1-5"   # weekdays 10:00 UTC
+  workflow_dispatch: {}
 
 jobs:
   digest:

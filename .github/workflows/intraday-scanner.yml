@@ -1,12 +1,10 @@
 name: Intraday Catalyst Scanner
 
 on:
-  schedule:
-    # Every 20 min from 8:00–21:00 UTC = roughly 4am–5pm ET (EDT).
-    # Covers pre-market, regular session, and early after-hours.
-    # Adjust the hour range to narrow or widen your coverage window.
-    - cron: "*/20 8-21 * * 1-5"
-  workflow_dispatch: {}   # Run manually anytime from the Actions tab
+  # Schedule disabled — run manually from Actions tab when ready.
+  # schedule:
+  #   - cron: "*/20 8-21 * * 1-5"
+  workflow_dispatch: {}
 
 jobs:
   scan:
