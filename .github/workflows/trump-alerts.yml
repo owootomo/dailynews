@@ -1,11 +1,9 @@
 name: Trump Post Alerts
 
 on:
-  schedule:
-    # Every 15 minutes. NOTE: GitHub's scheduled runs are best-effort and can be
-    # delayed (often 5-15+ min) during high load, so this is "near" real-time,
-    # not instant. See README for the GitHub Actions minutes / cost note.
-    - cron: "*/15 * * * *"
+  # Schedule disabled — run manually from Actions tab when ready.
+  # schedule:
+  #   - cron: "*/15 * * * *"
   workflow_dispatch: {}
 
 jobs:
